@@ -1,8 +1,8 @@
-"""Recusa arquivos fora da lista de caminhos permitidos.
+"""Recusa arquivos fora da lista de caminhos e extensões permitidos.
 
 Uso: python scripts/check_allowed_paths.py ARQUIVO [ARQUIVO ...]
 
-Sai com código 1 se algum arquivo está fora da lista. Imprime só o caminho.
+Sai com código 1 se algum arquivo está fora da lista. Imprime só arquivo e motivo.
 """
 
 from __future__ import annotations
@@ -10,21 +10,22 @@ from __future__ import annotations
 import sys
 from pathlib import PurePosixPath
 
-ALLOWED_DIRS: tuple[str, ...] = (
-    "src",
-    "tests",
-    "scripts",
-    "docs",
-    "contrato",
-    "fixtures/sinteticos",
-    ".github",
-)
+ALLOWED_DIRS: dict[str, frozenset[str]] = {
+    "src": frozenset({".py"}),
+    "tests": frozenset({".py"}),
+    "scripts": frozenset({".py"}),
+    "docs": frozenset({".md"}),
+    "contrato": frozenset({".md", ".json"}),
+    "fixtures/sinteticos": frozenset({".md", ".txt", ".json"}),
+    ".github": frozenset({".yml", ".yaml"}),
+}
 
 ALLOWED_ROOT_FILES: frozenset[str] = frozenset(
     {
         "pyproject.toml",
         "uv.lock",
         ".gitignore",
+        ".gitattributes",
         ".gitleaks.toml",
         ".pre-commit-config.yaml",
         "README.md",
@@ -34,25 +35,35 @@ ALLOWED_ROOT_FILES: frozenset[str] = frozenset(
 )
 
 
-def is_allowed(path: str) -> bool:
+def check_path(path: str) -> str | None:
+    """Devolve o motivo da recusa, ou None se o caminho é permitido."""
     normalized = PurePosixPath(path.replace("\\", "/"))
     parts = normalized.parts
     if not parts or normalized.is_absolute() or ".." in parts:
-        return False
+        return "caminho inválido"
     if len(parts) == 1:
-        return parts[0] in ALLOWED_ROOT_FILES
-    for directory in ALLOWED_DIRS:
+        if parts[0] in ALLOWED_ROOT_FILES:
+            return None
+        return "arquivo de raiz fora da lista de permitidos"
+    for directory, extensions in ALLOWED_DIRS.items():
         dir_parts = PurePosixPath(directory).parts
         if len(parts) > len(dir_parts) and parts[: len(dir_parts)] == dir_parts:
-            return True
-    return False
+            if normalized.suffix in extensions:
+                return None
+            return f"extensão não permitida em {directory}/"
+    return "pasta fora da lista de permitidas"
+
+
+def is_allowed(path: str) -> bool:
+    return check_path(path) is None
 
 
 def main(argv: list[str]) -> int:
     failed = False
     for name in argv:
-        if not is_allowed(name):
-            print(f"{name}: caminho fora da lista de permitidos")
+        reason = check_path(name)
+        if reason is not None:
+            print(f"{name}: {reason}")
             failed = True
     return 1 if failed else 0
 

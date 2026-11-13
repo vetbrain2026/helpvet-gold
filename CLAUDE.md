@@ -29,6 +29,6 @@ Extrator determinístico e local, sem LLM, dos prontuários da Help Vet (frente 
 ## Proteções
 
 - Todo clone novo roda `uv run pre-commit install` antes do primeiro commit.
-- Hooks: `no-commit-to-branch` (main), `detect-private-key`, `check-added-large-files` (500 KB), `scripts/check_pii_patterns.py` e `scripts/check_allowed_paths.py`.
+- Hooks: `no-commit-to-branch` (main), `detect-private-key`, `check-added-large-files` (500 KB), `scripts/check_pii_patterns.py` e `scripts/check_allowed_paths.py` (este exige pasta permitida e também extensão permitida por pasta: `src/`, `tests/`, `scripts/` = `.py`; `docs/` = `.md`; `contrato/` = `.md` e `.json`; `fixtures/sinteticos/` = `.md`, `.txt` e `.json`; `.github/` = `.yml` e `.yaml`).
 - `.gitignore` bloqueia dado por padrão; exceção só para `.md`, `.txt` e `.json` em `fixtures/sinteticos/` e `contrato/`.
 - Strings fictícias de PII nos testes são montadas por concatenação em tempo de execução.

@@ -73,6 +73,9 @@ def test_este_arquivo_passa_no_verificador() -> None:
         "README.md",
         "CLAUDE.md",
         "KNOWN_ISSUES.md",
+        ".gitattributes",
+        "fixtures/sinteticos/x.md",
+        "contrato/x.json",
     ],
 )
 def test_caminho_permitido(caminho: str) -> None:
@@ -89,10 +92,21 @@ def test_caminho_permitido(caminho: str) -> None:
         "src",
         "../fora.txt",
         "docs/../segredo.txt",
+        "docs/x.txt",
+        "src/x.json",
+        "scripts/x.md",
+        "contrato/x.txt",
+        "fixtures/sinteticos/x.pdf",
+        ".github/x.json",
     ],
 )
 def test_caminho_recusado(caminho: str) -> None:
     assert not check_allowed_paths.is_allowed(caminho)
+
+
+def test_motivo_de_extensao_sem_valor(capsys: pytest.CaptureFixture[str]) -> None:
+    assert check_allowed_paths.main(["docs/x.txt"]) == 1
+    assert capsys.readouterr().out.strip() == "docs/x.txt: extensão não permitida em docs/"
 
 
 def test_main_caminhos() -> None:
