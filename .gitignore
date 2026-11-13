@@ -1,0 +1,44 @@
+# Dados: bloqueados por padrao. Nenhum dado real entra no repositorio.
+data/
+dados/
+raw/
+bronze/
+prata/
+ouro/
+output/
+pdfs/
+backup*/
+
+*.pdf
+*.jsonl
+*.csv
+*.xlsx
+*.docx
+*.png
+*.jpg
+*.db
+*.sqlite
+.env*
+*.kdbx
+
+# Excecao explicita: apenas .md, .txt e .json em fixtures/sinteticos/ e contrato/
+# (PDF, CSV e imagem continuam bloqueados tambem ali).
+!fixtures/sinteticos/
+!fixtures/sinteticos/**/*.md
+!fixtures/sinteticos/**/*.txt
+!fixtures/sinteticos/**/*.json
+!contrato/
+!contrato/**/*.md
+!contrato/**/*.txt
+!contrato/**/*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/

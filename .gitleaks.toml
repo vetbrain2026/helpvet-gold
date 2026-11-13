@@ -1,0 +1,10 @@
+title = "helpvet-gold"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "cpf"
+description = "CPF formatado"
+regex = '''(?:^|[^0-9])[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}(?:[^0-9]|$)'''
+keywords = ["-"]

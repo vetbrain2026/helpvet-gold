@@ -1,0 +1,21 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: no-commit-to-branch
+        args: ["--branch", "main"]
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+  - repo: local
+    hooks:
+      - id: check-pii-patterns
+        name: verificador de padrões de PII
+        entry: uv run python scripts/check_pii_patterns.py
+        language: system
+        pass_filenames: true
+      - id: check-allowed-paths
+        name: verificador de caminhos permitidos
+        entry: uv run python scripts/check_allowed_paths.py
+        language: system
+        pass_filenames: true
