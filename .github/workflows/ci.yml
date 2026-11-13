@@ -1,11 +1,11 @@
 name: ci
 
+permissions:
+  contents: read
+
 on:
   push:
   pull_request:
-
-permissions:
-  contents: read
 
 jobs:
   checks:
@@ -19,7 +19,7 @@ jobs:
       - run: uv sync
       - run: uv run ruff check
       - run: uv run ruff format --check
-      - run: uv run mypy src scripts
+      - run: uv run mypy src scripts tests
       - run: uv run pytest
       - name: Verificadores sobre todos os arquivos versionados
         run: |
