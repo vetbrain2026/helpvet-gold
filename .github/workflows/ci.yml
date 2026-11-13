@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.12
+      - run: uv sync
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run mypy src scripts
+      - run: uv run pytest
+      - name: Verificadores sobre todos os arquivos versionados
+        run: |
+          git ls-files -z | xargs -0 uv run python scripts/check_pii_patterns.py
+          git ls-files -z | xargs -0 uv run python scripts/check_allowed_paths.py
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
