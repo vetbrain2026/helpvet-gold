@@ -51,6 +51,38 @@ def test_main_pii_limpo(tmp_path: Path) -> None:
     assert check_pii_patterns.main([str(arquivo)]) == 0
 
 
+def test_cp1252_com_acento_e_recusado(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    arquivo = tmp_path / "cp1252.txt"
+    arquivo.write_bytes("coração".encode("cp1252"))
+    assert check_pii_patterns.main([str(arquivo)]) == 1
+    assert capsys.readouterr().out.strip() == f"{arquivo}: não é UTF-8"
+
+
+def test_bytes_com_nul_sao_recusados(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    arquivo = tmp_path / "bin.txt"
+    arquivo.write_bytes(b"abc\x00def")
+    assert check_pii_patterns.main([str(arquivo)]) == 1
+    assert "arquivo binário ou UTF-16 não permitido" in capsys.readouterr().out
+
+
+def test_utf16_e_recusado(tmp_path: Path) -> None:
+    arquivo = tmp_path / "u16.txt"
+    arquivo.write_bytes("texto".encode("utf-16"))
+    assert check_pii_patterns.main([str(arquivo)]) == 1
+
+
+def test_arquivo_ilegivel_e_recusado(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    inexistente = tmp_path / "nao_existe.txt"
+    assert check_pii_patterns.main([str(inexistente)]) == 1
+    assert capsys.readouterr().out.strip() == f"{inexistente}: ilegível"
+
+
+def test_utf8_limpo_com_acento_e_aceito(tmp_path: Path) -> None:
+    arquivo = tmp_path / "ok.txt"
+    arquivo.write_text("coração e ação", encoding="utf-8")
+    assert check_pii_patterns.main([str(arquivo)]) == 0
+
+
 def test_este_arquivo_passa_no_verificador() -> None:
     assert check_pii_patterns.main([__file__]) == 0
 

@@ -33,13 +33,28 @@ def find_pii(text: str) -> list[tuple[int, str]]:
     return findings
 
 
+def read_text_or_reason(path: Path) -> tuple[str | None, str | None]:
+    """Falha fechado: devolve (texto, None) ou (None, motivo da recusa)."""
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None, "ilegível"
+    if b"\x00" in data:
+        return None, "arquivo binário ou UTF-16 não permitido"
+    try:
+        return data.decode("utf-8"), None
+    except UnicodeDecodeError:
+        return None, "não é UTF-8"
+
+
 def main(argv: list[str]) -> int:
     failed = False
     for name in argv:
         path = Path(name)
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError):
+        text, reason = read_text_or_reason(path)
+        if text is None:
+            print(f"{name}: {reason}")
+            failed = True
             continue
         for number, kind in find_pii(text):
             print(f"{name}:{number}: padrão de {kind} encontrado")
