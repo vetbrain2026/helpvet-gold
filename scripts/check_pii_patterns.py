@@ -20,7 +20,13 @@ PATTERNS: dict[str, re.Pattern[str]] = {
         r"|(?<!\d)9?\d{4}-\d{4}(?!\d)"
     ),
     "EMAIL": re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+"),
+    "CPF_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{11}(?!\d)"),
+    "CNPJ_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{14}(?!\d)"),
+    "TELEFONE_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{10,11}(?!\d)"),
 }
+
+# Única isenção: o arquivo de lock gerado pelo uv (hashes e tamanhos).
+EXEMPT_FILES: frozenset[str] = frozenset({"uv.lock"})
 
 
 def find_pii(text: str) -> list[tuple[int, str]]:
@@ -50,6 +56,8 @@ def read_text_or_reason(path: Path) -> tuple[str | None, str | None]:
 def main(argv: list[str]) -> int:
     failed = False
     for name in argv:
+        if name.replace("\\", "/") in EXEMPT_FILES:
+            continue
         path = Path(name)
         text, reason = read_text_or_reason(path)
         if text is None:

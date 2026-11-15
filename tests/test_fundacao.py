@@ -51,6 +51,44 @@ def test_main_pii_limpo(tmp_path: Path) -> None:
     assert check_pii_patterns.main([str(arquivo)]) == 0
 
 
+CPF_SOLTO = "123456" + "78909"
+CNPJ_SOLTO = "12345678" + "000195"
+TEL10_SOLTO = "1198765" + "4321"
+TEL11_SOLTO = "11987" + "654321"
+
+
+@pytest.mark.parametrize(
+    ("valor", "tipo"),
+    [
+        (CPF_SOLTO, "CPF_SEM_PONTUACAO"),
+        (CNPJ_SOLTO, "CNPJ_SEM_PONTUACAO"),
+        (TEL10_SOLTO, "TELEFONE_SEM_PONTUACAO"),
+        (TEL11_SOLTO, "TELEFONE_SEM_PONTUACAO"),
+    ],
+)
+def test_sequencia_numerica_solta_e_barrada(valor: str, tipo: str) -> None:
+    achados = check_pii_patterns.find_pii("ok\nnumero " + valor + " fim\n")
+    assert (2, tipo) in achados
+
+
+@pytest.mark.parametrize("valor", ["123456789", "123456789012", "123456789012345", "42"])
+def test_numeros_de_outros_tamanhos_passam(valor: str) -> None:
+    assert check_pii_patterns.find_pii("n " + valor) == []
+
+
+def test_somente_uv_lock_e_isento(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    Path("uv.lock").write_text("size = " + CPF_SOLTO + "\n", encoding="utf-8")
+    Path("outro.lock").write_text("size = " + CPF_SOLTO + "\n", encoding="utf-8")
+    assert check_pii_patterns.main(["uv.lock"]) == 0
+    assert check_pii_patterns.main(["outro.lock"]) == 1
+    saida = capsys.readouterr().out
+    assert "outro.lock:1:" in saida
+    assert CPF_SOLTO not in saida
+
+
 def test_cp1252_com_acento_e_recusado(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     arquivo = tmp_path / "cp1252.txt"
     arquivo.write_bytes("coração".encode("cp1252"))
