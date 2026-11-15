@@ -20,6 +20,26 @@ backup*/
 *.sqlite
 .env*
 *.kdbx
+*.json
+*.txt
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.bak
+*.sql
+*.parquet
+*.pkl
+*.log
+*.jpeg
+*.gif
+*.bmp
+*.webp
+*.tif
+*.tiff
+*.xml
+*.html
 
 # Excecao explicita: apenas .md, .txt e .json em fixtures/sinteticos/ e contrato/
 # (PDF, CSV e imagem continuam bloqueados tambem ali).
