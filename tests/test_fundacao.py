@@ -179,6 +179,22 @@ def test_motivo_de_extensao_sem_valor(capsys: pytest.CaptureFixture[str]) -> Non
     assert capsys.readouterr().out.strip() == "docs/x.txt: extensão não permitida em docs/"
 
 
+@pytest.mark.parametrize("pasta", ["fixtures/sinteticos", "contrato"])
+def test_limite_de_100_kb(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pasta: str,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / pasta).mkdir(parents=True)
+    Path(pasta, "ok.json").write_bytes(b"a" * (100 * 1024))
+    Path(pasta, "grande.json").write_bytes(b"a" * (100 * 1024 + 1))
+    assert check_allowed_paths.main([f"{pasta}/ok.json"]) == 0
+    assert check_allowed_paths.main([f"{pasta}/grande.json"]) == 1
+    assert capsys.readouterr().out.strip() == f"{pasta}/grande.json: acima de 100 KB"
+
+
 def test_main_caminhos() -> None:
     assert check_allowed_paths.main(["README.md"]) == 0
     assert check_allowed_paths.main(["README.md", "anotacoes.txt"]) == 1

@@ -8,7 +8,7 @@ Sai com código 1 se algum arquivo está fora da lista. Imprime só arquivo e mo
 from __future__ import annotations
 
 import sys
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 ALLOWED_DIRS: dict[str, frozenset[str]] = {
     "src": frozenset({".py"}),
@@ -35,6 +35,17 @@ ALLOWED_ROOT_FILES: frozenset[str] = frozenset(
 )
 
 
+SIZE_LIMITED_DIRS: frozenset[str] = frozenset({"fixtures/sinteticos", "contrato"})
+MAX_BYTES = 100 * 1024
+
+
+def _size(path: str) -> int:
+    try:
+        return Path(path).stat().st_size
+    except OSError:
+        return 0
+
+
 def check_path(path: str) -> str | None:
     """Devolve o motivo da recusa, ou None se o caminho é permitido."""
     normalized = PurePosixPath(path.replace("\\", "/"))
@@ -49,6 +60,8 @@ def check_path(path: str) -> str | None:
         dir_parts = PurePosixPath(directory).parts
         if len(parts) > len(dir_parts) and parts[: len(dir_parts)] == dir_parts:
             if normalized.suffix in extensions:
+                if directory in SIZE_LIMITED_DIRS and _size(path) > MAX_BYTES:
+                    return "acima de 100 KB"
                 return None
             return f"extensão não permitida em {directory}/"
     return "pasta fora da lista de permitidas"
