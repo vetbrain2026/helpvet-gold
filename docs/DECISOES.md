@@ -1,0 +1,7 @@
+# Decisões que governam o repositório
+
+Texto oficial: fonte 07 do Project do VetBrain.
+
+- **PROC-001 (2026-11-06):** extrator determinístico local para PDFs. A extração dos prontuários é feita por script local (texto literal, scrub de PII por regra, gates de fidelidade e privacidade). Nenhum LLM recebe PDF bruto ou PII. LLM só sobre dado desidentificado e para tarefa cognitiva medida.
+- **PROC-003 (2026-11-13, ratificada pelo Rafa):** operação em duas frentes. PC principal = produto (vetbrain-platform, canário); notebook = extração (helpvet-gold). Canal de código e contrato só pelo GitHub privado, por PR. Dado real só depois do portão do extrator: PDF bruto à máquina do extrator em mídia cifrada; bronze e prata nunca saem dela; ouro desidentificado à máquina do v4 em mídia cifrada, nunca em repositório nem CI. Dois portões (extrator e VetBrain). Um só Project; fontes da extração com prefixo EX-.
+- **PROC-004 (2026-11-13, decisão do Rafa):** a extração recomeça do zero no helpvet-gold. Motivo: os projetos antigos de extração usaram LLM e enviaram dado sensível. O código antigo não é reutilizado nem lido por agente; fica arquivado como referência, sem apagar. Reaproveita-se só a especificação HelpVet Gold v2.1 e a lista de falhas da extração antiga, como requisitos do contrato do JSON ouro, depois de conferido que não contêm dado real.

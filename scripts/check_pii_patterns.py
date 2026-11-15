@@ -1,0 +1,74 @@
+"""Verificador determinístico de padrões de PII (CPF, CNPJ, telefone BR, e-mail).
+
+Uso: python scripts/check_pii_patterns.py ARQUIVO [ARQUIVO ...]
+
+Sai com código 1 se algum arquivo contém um padrão. Imprime só arquivo, linha e
+tipo do achado, nunca o valor.
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+PATTERNS: dict[str, re.Pattern[str]] = {
+    "CPF": re.compile(r"(?<!\d)\d{3}\.\d{3}\.\d{3}-\d{2}(?!\d)"),
+    "CNPJ": re.compile(r"(?<!\d)\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}(?!\d)"),
+    "TELEFONE": re.compile(
+        r"(?<!\d)(?:\+55\s?)?(?:\(\d{2}\)\s?|\d{2}\s)9?\d{4}-?\d{4}(?!\d)"
+        r"|(?<!\d)9?\d{4}-\d{4}(?!\d)"
+    ),
+    "EMAIL": re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+"),
+    "CPF_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{11}(?!\d)"),
+    "CNPJ_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{14}(?!\d)"),
+    "TELEFONE_SEM_PONTUACAO": re.compile(r"(?<!\d)\d{10,11}(?!\d)"),
+}
+
+# Única isenção: o arquivo de lock gerado pelo uv (hashes e tamanhos).
+EXEMPT_FILES: frozenset[str] = frozenset({"uv.lock"})
+
+
+def find_pii(text: str) -> list[tuple[int, str]]:
+    """Devolve (linha, tipo) de cada achado, sem expor o valor."""
+    findings: list[tuple[int, str]] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        for kind, pattern in PATTERNS.items():
+            if pattern.search(line):
+                findings.append((number, kind))
+    return findings
+
+
+def read_text_or_reason(path: Path) -> tuple[str | None, str | None]:
+    """Falha fechado: devolve (texto, None) ou (None, motivo da recusa)."""
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None, "ilegível"
+    if b"\x00" in data:
+        return None, "arquivo binário ou UTF-16 não permitido"
+    try:
+        return data.decode("utf-8"), None
+    except UnicodeDecodeError:
+        return None, "não é UTF-8"
+
+
+def main(argv: list[str]) -> int:
+    failed = False
+    for name in argv:
+        if name.replace("\\", "/") in EXEMPT_FILES:
+            continue
+        path = Path(name)
+        text, reason = read_text_or_reason(path)
+        if text is None:
+            print(f"{name}: {reason}")
+            failed = True
+            continue
+        for number, kind in find_pii(text):
+            print(f"{name}:{number}: padrão de {kind} encontrado")
+            failed = True
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
