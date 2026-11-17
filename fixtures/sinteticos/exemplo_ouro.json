@@ -1,0 +1,285 @@
+{
+  "contrato": "helpvet-gold-1.2",
+  "extracao": {
+    "run_id": 1,
+    "iniciado_em": "2030-01-15T10:00:00",
+    "pdf_sha256": "ab12cd34ef56ab78ab12cd34ef56ab78ab12cd34ef56ab78ab12cd34ef56ab78",
+    "paginas_total": 6,
+    "versao_extrator_1a": "0.0.0-sintetico",
+    "versao_regras_1b": "r1b-sintetico",
+    "status": "ok"
+  },
+  "paciente": {
+    "codigo_sistema": "9",
+    "especie": "canina",
+    "raca": "SRD",
+    "sexo": "F",
+    "castrado": 1,
+    "data_nascimento": null,
+    "nascimento_confianca": null,
+    "grupo_tutor_ref": null
+  },
+  "eventos": [
+    {
+      "ref": "E001",
+      "chave": {
+        "tipo_bruto": "Atendimento",
+        "subtipo": null,
+        "autoria_em": "2030-01-10T09:30",
+        "ordinal": 1,
+        "parte_indice": null
+      },
+      "conteudo_sha1": "ab12cd34ef56ab78cd90ab12cd34ef56ab78cd90",
+      "parte_de": null,
+      "bloco_id": "B0001",
+      "tipo": "consulta_clinica",
+      "categoria": "clinico",
+      "event_date": "2030-01-10",
+      "registered_date": "2030-01-10T09:45",
+      "autor_papel": "veterinario",
+      "pagina_inicio": 1,
+      "pagina_fim": 2,
+      "medidas": [
+        {
+          "ref": "M1",
+          "tipo": "peso",
+          "valor": 12.5,
+          "unidade": "kg",
+          "data_medida": "2030-01-10T09:30",
+          "confianca": 0.95,
+          "pagina": 1,
+          "trecho": "Peso: 12,500 kg"
+        },
+        {
+          "ref": "M2",
+          "tipo": "tpc",
+          "valor": 2,
+          "unidade": "s",
+          "data_medida": "2030-01-10T09:30",
+          "confianca": 0.9,
+          "pagina": 1,
+          "trecho": "TPC: 2 segundos"
+        },
+        {
+          "ref": "M3",
+          "tipo": "cetonas_fita",
+          "valor": null,
+          "valor_texto": "++",
+          "unidade": null,
+          "data_medida": "2030-01-10T09:30",
+          "confianca": 0.9,
+          "pagina": 1,
+          "trecho": "cetonas urinarias ++"
+        }
+      ],
+      "achados": [
+        {
+          "ref": "A1",
+          "origem": "exame_fisico",
+          "sistema": "geral",
+          "achado_tipo": "mucosas",
+          "descricao": "mucosas hipocoradas",
+          "status": "presente",
+          "pagina": 1,
+          "trecho": "mucosas hipocoradas",
+          "confianca": 0.9
+        },
+        {
+          "ref": "A2",
+          "origem": "exame_fisico",
+          "sistema": "geral",
+          "achado_tipo": "linfonodos",
+          "descricao": "linfonodos sem alteracao",
+          "status": "ausente",
+          "pagina": 1,
+          "trecho": "linfonodos sem alteracao",
+          "confianca": 0.9
+        },
+        {
+          "ref": "A3",
+          "origem": "queixa",
+          "sistema": "digestorio",
+          "achado_tipo": "generico",
+          "descricao": "vomito ocasional",
+          "status": "presente",
+          "pagina": 1,
+          "trecho": "vomito ocasional",
+          "confianca": 0.8
+        }
+      ],
+      "exames": [],
+      "diagnosticos": [
+        {
+          "ref": "D1",
+          "termo_original": "gastrite",
+          "status_evidencia": "suspeito",
+          "pagina": 2,
+          "trecho": "Suspeita de gastrite",
+          "confianca": 0.6,
+          "evidencias": [
+            { "tipo": "achado", "ref": "A3", "polaridade": "a_favor", "peso": null }
+          ]
+        }
+      ],
+      "prescricoes": [],
+      "desfechos": [],
+      "procedimentos": [],
+      "texto_livre_resumo": null
+    },
+    {
+      "ref": "E002",
+      "chave": {
+        "tipo_bruto": "Exame",
+        "subtipo": null,
+        "autoria_em": "2030-01-10T11:00",
+        "ordinal": 1,
+        "parte_indice": null
+      },
+      "conteudo_sha1": "cd90ab12cd34ef56ab78cd90ab12cd34ef56ab78",
+      "parte_de": null,
+      "bloco_id": "B0002",
+      "tipo": "exame_hemograma",
+      "categoria": "clinico",
+      "event_date": "2030-01-10",
+      "registered_date": null,
+      "autor_papel": "sistema",
+      "pagina_inicio": 3,
+      "pagina_fim": 3,
+      "medidas": [],
+      "achados": [],
+      "exames": [
+        {
+          "ref": "X1",
+          "modalidade": "hemograma",
+          "laboratorio": null,
+          "status": "resultado_imagem_nao_extraido",
+          "narrativa": null,
+          "data_laudo": null,
+          "pagina": 3,
+          "trecho": "HEMOGRAMA COMPLETO",
+          "analitos": []
+        }
+      ],
+      "diagnosticos": [],
+      "prescricoes": [],
+      "desfechos": [],
+      "procedimentos": []
+    },
+    {
+      "ref": "E003",
+      "chave": {
+        "tipo_bruto": "Retorno",
+        "subtipo": null,
+        "autoria_em": "2030-01-17T14:20",
+        "ordinal": 1,
+        "parte_indice": null
+      },
+      "conteudo_sha1": "ef56ab78cd90ab12cd34ef56ab78cd90ab12cd34",
+      "parte_de": null,
+      "bloco_id": "B0003",
+      "tipo": "retorno_clinico",
+      "categoria": "clinico",
+      "event_date": "2030-01-17",
+      "registered_date": "2030-01-17T14:40",
+      "autor_papel": "veterinario",
+      "pagina_inicio": 4,
+      "pagina_fim": 5,
+      "medidas": [],
+      "achados": [],
+      "exames": [],
+      "diagnosticos": [],
+      "prescricoes": [],
+      "desfechos": [
+        {
+          "ref": "O1",
+          "tipo": "melhora",
+          "origem": "registrado",
+          "data_desfecho": null,
+          "pagina": 4,
+          "trecho": "Paciente apresenta melhora clinica",
+          "confianca": 0.85
+        }
+      ],
+      "procedimentos": [
+        {
+          "ref": "P1",
+          "categoria": "vacinacao",
+          "descricao_original": "vacina multipla (x) Em dia",
+          "status": "referido",
+          "situacao": "em_dia",
+          "data_procedimento": null,
+          "pagina": 4,
+          "trecho": "vacina multipla (x) Em dia",
+          "confianca": 0.9
+        },
+        {
+          "ref": "P2",
+          "categoria": "medicacao_administrada",
+          "descricao_original": "atropina 0,04 mg/kg IV",
+          "status": "realizado",
+          "situacao": null,
+          "data_procedimento": "2030-01-17",
+          "pagina": 5,
+          "trecho": "atropina 0,04 mg/kg IV",
+          "confianca": 0.8
+        }
+      ]
+    },
+    {
+      "ref": "E004",
+      "chave": {
+        "tipo_bruto": "Medida",
+        "subtipo": null,
+        "autoria_em": "2030-01-17T14:50",
+        "ordinal": 1,
+        "parte_indice": null
+      },
+      "conteudo_sha1": "12cd34ef56ab78cd90ab12cd34ef56ab78cd90ab",
+      "parte_de": null,
+      "bloco_id": "B0004",
+      "tipo": "medida_isolada",
+      "categoria": "clinico",
+      "event_date": "2030-01-17",
+      "registered_date": null,
+      "autor_papel": "enfermagem",
+      "pagina_inicio": 6,
+      "pagina_fim": 6,
+      "medidas": [
+        {
+          "ref": "M1",
+          "tipo": "peso",
+          "valor": 12.1,
+          "unidade": "kg",
+          "data_medida": "2030-01-17T14:50",
+          "confianca": 0.95,
+          "pagina": 6,
+          "trecho": "Peso: 12,100 kg"
+        }
+      ],
+      "achados": [],
+      "exames": [],
+      "diagnosticos": [],
+      "prescricoes": [],
+      "desfechos": [],
+      "procedimentos": []
+    }
+  ],
+  "alertas_extracao": [
+    {
+      "tipo": "dado_ausente",
+      "evento_ref": "E002",
+      "severidade": "baixa",
+      "descricao": "resultado do exame apenas em imagem"
+    }
+  ],
+  "inventario": {
+    "blocos_total": 4,
+    "blocos_anotados": 3,
+    "blocos_quarentena": 1,
+    "blocos_sem_carimbo": 0,
+    "blocos_descartados": { "ruido": 0, "financeiro": 0, "foto": 0, "administrativo": 0 },
+    "linhas_template_removidas": 0,
+    "execucoes_prescricao_nao_modeladas": 0,
+    "exames_imagem_paginas": [3]
+  }
+}

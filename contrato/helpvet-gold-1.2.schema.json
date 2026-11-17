@@ -1,0 +1,451 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "helpvet-gold-1.2.schema.json",
+  "title": "helpvet-gold-1.2",
+  "description": "JSON ouro por paciente, contrato 1.2. Fonte executavel de contrato/CONTRATO_JSON_OURO.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contrato", "extracao", "paciente", "eventos", "alertas_extracao", "inventario"],
+  "properties": {
+    "contrato": { "const": "helpvet-gold-1.2" },
+    "extracao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "iniciado_em",
+        "pdf_sha256",
+        "paginas_total",
+        "versao_extrator_1a",
+        "versao_regras_1b",
+        "status"
+      ],
+      "properties": {
+        "run_id": { "type": "integer" },
+        "iniciado_em": { "$ref": "#/$defs/datetime" },
+        "pdf_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "paginas_total": { "type": "integer", "minimum": 1 },
+        "versao_extrator_1a": { "type": "string", "minLength": 1 },
+        "versao_regras_1b": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["ok", "parcial", "falha"] }
+      }
+    },
+    "paciente": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codigo_sistema",
+        "especie",
+        "raca",
+        "sexo",
+        "castrado",
+        "data_nascimento",
+        "nascimento_confianca",
+        "grupo_tutor_ref"
+      ],
+      "properties": {
+        "codigo_sistema": { "type": "string", "pattern": "^[0-9]+$" },
+        "especie": { "enum": ["canina", "felina", "outra"] },
+        "raca": { "type": ["string", "null"] },
+        "sexo": { "enum": ["M", "F", "desconhecido"] },
+        "castrado": { "enum": [0, 1, null] },
+        "data_nascimento": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "nascimento_confianca": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "grupo_tutor_ref": { "const": null }
+      }
+    },
+    "eventos": { "type": "array", "items": { "$ref": "#/$defs/evento" } },
+    "alertas_extracao": { "type": "array", "items": { "$ref": "#/$defs/alerta" } },
+    "inventario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blocos_total",
+        "blocos_anotados",
+        "blocos_quarentena",
+        "blocos_sem_carimbo",
+        "blocos_descartados",
+        "linhas_template_removidas",
+        "execucoes_prescricao_nao_modeladas",
+        "exames_imagem_paginas"
+      ],
+      "properties": {
+        "blocos_total": { "$ref": "#/$defs/contagem" },
+        "blocos_anotados": { "$ref": "#/$defs/contagem" },
+        "blocos_quarentena": { "$ref": "#/$defs/contagem" },
+        "blocos_sem_carimbo": { "$ref": "#/$defs/contagem" },
+        "blocos_descartados": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ruido", "financeiro", "foto", "administrativo"],
+          "properties": {
+            "ruido": { "$ref": "#/$defs/contagem" },
+            "financeiro": { "$ref": "#/$defs/contagem" },
+            "foto": { "$ref": "#/$defs/contagem" },
+            "administrativo": { "$ref": "#/$defs/contagem" }
+          }
+        },
+        "linhas_template_removidas": { "$ref": "#/$defs/contagem" },
+        "execucoes_prescricao_nao_modeladas": { "$ref": "#/$defs/contagem" },
+        "exames_imagem_paginas": { "type": "array", "items": { "$ref": "#/$defs/pagina" } }
+      }
+    }
+  },
+  "$defs": {
+    "contagem": { "type": "integer", "minimum": 0 },
+    "pagina": { "type": "integer", "minimum": 1 },
+    "confianca": { "type": "number", "minimum": 0, "maximum": 1 },
+    "trecho": { "type": "string", "minLength": 1 },
+    "ref": { "type": "string", "pattern": "^[A-Z][0-9]+$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "datetime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?$"
+    },
+    "date_or_null": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+    "datetime_or_null": { "oneOf": [{ "$ref": "#/$defs/datetime" }, { "type": "null" }] },
+    "snake_case": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "alerta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tipo", "evento_ref", "severidade", "descricao"],
+      "properties": {
+        "tipo": {
+          "enum": [
+            "conflito_interno",
+            "data_inconsistente",
+            "historia_sem_registro",
+            "pareamento_incerto",
+            "dado_ausente"
+          ]
+        },
+        "evento_ref": { "type": ["string", "null"], "pattern": "^E[0-9]+$" },
+        "severidade": { "enum": ["baixa", "media", "alta"] },
+        "descricao": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evento": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "chave",
+        "conteudo_sha1",
+        "parte_de",
+        "bloco_id",
+        "tipo",
+        "categoria",
+        "event_date",
+        "registered_date",
+        "autor_papel",
+        "pagina_inicio",
+        "pagina_fim",
+        "medidas",
+        "achados",
+        "exames",
+        "diagnosticos",
+        "prescricoes",
+        "desfechos",
+        "procedimentos"
+      ],
+      "properties": {
+        "ref": { "type": "string", "pattern": "^E[0-9]+$" },
+        "chave": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tipo_bruto", "subtipo", "autoria_em", "ordinal", "parte_indice"],
+          "properties": {
+            "tipo_bruto": { "type": "string", "minLength": 1 },
+            "subtipo": { "type": ["string", "null"] },
+            "autoria_em": { "$ref": "#/$defs/datetime" },
+            "ordinal": { "type": "integer", "minimum": 1 },
+            "parte_indice": { "type": ["integer", "null"], "minimum": 1 }
+          }
+        },
+        "conteudo_sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "parte_de": { "type": ["string", "null"], "pattern": "^B[0-9]+$" },
+        "bloco_id": { "type": "string", "pattern": "^B[0-9]+$" },
+        "tipo": {
+          "anyOf": [
+            {
+              "enum": [
+                "consulta_clinica",
+                "retorno_clinico",
+                "solicitacao_exame",
+                "solicitacao_hemocomponente",
+                "encaminhamento",
+                "receita",
+                "receituario_controle_especial",
+                "internacao_admissao",
+                "alta_internacao",
+                "prescricao_internacao",
+                "medida_isolada",
+                "observacao_clinica",
+                "termo_consentimento",
+                "ficha_resumida",
+                "comprovante"
+              ]
+            },
+            { "type": "string", "pattern": "^consulta_[a-z][a-z0-9_]*$" },
+            { "type": "string", "pattern": "^exame_[a-z][a-z0-9_]*$" }
+          ]
+        },
+        "categoria": { "enum": ["clinico", "administrativo", "financeiro"] },
+        "event_date": { "$ref": "#/$defs/date_or_null" },
+        "registered_date": { "$ref": "#/$defs/datetime_or_null" },
+        "autor_papel": {
+          "enum": [
+            "veterinario",
+            "endocrinologista",
+            "radiologista",
+            "enfermagem",
+            "sistema",
+            "outro",
+            null
+          ]
+        },
+        "pagina_inicio": { "$ref": "#/$defs/pagina" },
+        "pagina_fim": { "$ref": "#/$defs/pagina" },
+        "medidas": { "type": "array", "items": { "$ref": "#/$defs/medida" } },
+        "achados": { "type": "array", "items": { "$ref": "#/$defs/achado" } },
+        "exames": { "type": "array", "items": { "$ref": "#/$defs/exame" } },
+        "diagnosticos": { "type": "array", "items": { "$ref": "#/$defs/diagnostico" } },
+        "prescricoes": { "type": "array", "items": { "$ref": "#/$defs/prescricao" } },
+        "desfechos": { "type": "array", "items": { "$ref": "#/$defs/desfecho" } },
+        "procedimentos": { "type": "array", "items": { "$ref": "#/$defs/procedimento" } },
+        "texto_livre_resumo": { "type": ["string", "null"] }
+      }
+    },
+    "medida": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "tipo", "valor", "unidade", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "tipo": {
+          "enum": [
+            "peso",
+            "temperatura",
+            "fc",
+            "fr",
+            "glicemia",
+            "ecc",
+            "bhb",
+            "cetonas_fita",
+            "pas",
+            "tpc",
+            "spo2"
+          ]
+        },
+        "valor": { "type": ["number", "null"] },
+        "valor_texto": { "type": ["string", "null"] },
+        "unidade": { "type": ["string", "null"] },
+        "data_medida": { "$ref": "#/$defs/datetime_or_null" },
+        "confianca": { "$ref": "#/$defs/confianca" },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" }
+      }
+    },
+    "achado": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "origem",
+        "sistema",
+        "achado_tipo",
+        "descricao",
+        "status",
+        "pagina",
+        "trecho"
+      ],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "origem": { "enum": ["queixa", "exame_fisico"] },
+        "sistema": {
+          "enum": [
+            "respiratorio",
+            "cardiovascular",
+            "digestorio",
+            "urinario",
+            "reprodutor",
+            "locomotor",
+            "neurologico",
+            "pele",
+            "ocular",
+            "ouvido",
+            "oral",
+            "endocrino",
+            "geral"
+          ]
+        },
+        "achado_tipo": { "enum": ["mucosas", "linfonodos", "hidratacao", "tpc", "generico"] },
+        "descricao": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["presente", "ausente", "nao_avaliado", "desconhecido"] },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" },
+        "confianca": { "$ref": "#/$defs/confianca" }
+      }
+    },
+    "analito": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["codigo", "tipo_resultado"],
+      "properties": {
+        "codigo": { "$ref": "#/$defs/snake_case" },
+        "valor_texto": { "type": ["string", "null"] },
+        "valor": { "type": ["number", "null"] },
+        "unidade": { "type": ["string", "null"] },
+        "tipo_resultado": { "enum": ["estruturado", "ausente"] },
+        "ref_min": { "type": ["number", "null"] },
+        "ref_max": { "type": ["number", "null"] },
+        "interpretacao": {
+          "enum": ["normal", "alterado", "reagente", "nao_reagente", "indefinido", null]
+        }
+      }
+    },
+    "exame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "modalidade", "status", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "modalidade": { "$ref": "#/$defs/snake_case" },
+        "laboratorio": { "type": ["string", "null"] },
+        "status": {
+          "enum": [
+            "solicitado",
+            "resultado_textual",
+            "resultado_imagem_nao_extraido",
+            "laudo_externo",
+            "ausente"
+          ]
+        },
+        "narrativa": { "type": ["string", "null"] },
+        "data_laudo": { "$ref": "#/$defs/date_or_null" },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" },
+        "analitos": { "type": "array", "items": { "$ref": "#/$defs/analito" } }
+      }
+    },
+    "evidencia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tipo", "ref", "polaridade", "peso"],
+      "properties": {
+        "tipo": { "enum": ["achado", "analito", "exame"] },
+        "ref": { "type": "string", "minLength": 1 },
+        "polaridade": { "enum": ["a_favor", "contra"] },
+        "peso": { "const": null }
+      }
+    },
+    "diagnostico": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "termo_original", "status_evidencia", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "termo_original": { "type": "string", "minLength": 1 },
+        "status_evidencia": {
+          "enum": ["confirmado", "suspeito", "descartado", "achado_imagem"]
+        },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" },
+        "confianca": { "$ref": "#/$defs/confianca" },
+        "evidencias": { "type": "array", "items": { "$ref": "#/$defs/evidencia" } }
+      }
+    },
+    "prescricao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "medicamento_original", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "medicamento_original": { "type": "string", "minLength": 1 },
+        "dose_texto": { "type": ["string", "null"] },
+        "frequencia_horas": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "duracao_dias": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "via": {
+          "enum": [
+            "oral",
+            "intravenosa",
+            "subcutanea",
+            "intramuscular",
+            "topica",
+            "otologica",
+            "oftalmica",
+            "inalatoria",
+            "retal",
+            "outra",
+            null
+          ]
+        },
+        "etapa": { "type": ["integer", "null"], "minimum": 1 },
+        "componentes": { "type": ["array", "null"], "items": { "type": "string" } },
+        "controlado": { "enum": [0, 1] },
+        "origem_produto": { "enum": ["vet", "humano", null] },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" }
+      }
+    },
+    "desfecho": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "tipo", "origem", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "tipo": {
+          "enum": [
+            "obito",
+            "eutanasia",
+            "alta_internacao",
+            "alta_a_pedido",
+            "transferencia",
+            "resolucao",
+            "melhora",
+            "piora"
+          ]
+        },
+        "origem": { "enum": ["registrado", "referido"] },
+        "data_desfecho": { "$ref": "#/$defs/date_or_null" },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" },
+        "confianca": { "$ref": "#/$defs/confianca" }
+      }
+    },
+    "procedimento": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "categoria", "descricao_original", "status", "pagina", "trecho"],
+      "properties": {
+        "ref": { "$ref": "#/$defs/ref" },
+        "categoria": {
+          "enum": [
+            "vacinacao",
+            "antiparasitario",
+            "castracao",
+            "cirurgia",
+            "sedacao_anestesia",
+            "transfusao",
+            "fluidoterapia",
+            "medicacao_administrada",
+            "procedimento_ambulatorial",
+            "outro"
+          ]
+        },
+        "descricao_original": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["realizado", "agendado", "indicado", "recusado", "referido"] },
+        "situacao": { "enum": ["em_dia", "em_atraso", "nunca", "desconhecida", null] },
+        "data_procedimento": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" },
+            { "type": "null" }
+          ]
+        },
+        "pagina": { "$ref": "#/$defs/pagina" },
+        "trecho": { "$ref": "#/$defs/trecho" },
+        "confianca": { "$ref": "#/$defs/confianca" }
+      }
+    }
+  }
+}
