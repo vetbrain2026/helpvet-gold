@@ -12,6 +12,8 @@ dev = [
     "ruff",
     "mypy",
     "pre-commit",
+    "jsonschema>=4.26.0",
+    "types-jsonschema>=4.26.0.20261006",
 ]
 
 [build-system]
