@@ -71,6 +71,22 @@ def test_campo_extra_e_recusado(validador: Draft202012Validator, exemplo: Any) -
     assert not validador.is_valid(ruim)
 
 
+def test_medida_qualitativa_valor_null_e_valor_texto_e_aceita(
+    validador: Draft202012Validator, exemplo: Any
+) -> None:
+    ok = copy.deepcopy(exemplo)
+    medida = ok["eventos"][0]["medidas"][-1]
+    assert medida["valor"] is None
+    assert medida["valor_texto"] == "++"
+    assert validador.is_valid(ok)
+
+
+def test_medida_com_valor_string_e_recusada(validador: Draft202012Validator, exemplo: Any) -> None:
+    ruim = copy.deepcopy(exemplo)
+    ruim["eventos"][0]["medidas"][-1]["valor"] = "++"
+    assert not validador.is_valid(ruim)
+
+
 def test_campos_1_1_removidos_sao_recusados(validador: Draft202012Validator, exemplo: Any) -> None:
     ruim = copy.deepcopy(exemplo)
     ruim["extracao"]["modelo_1b"] = "x"

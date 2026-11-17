@@ -72,7 +72,9 @@ Extração **determinística** (sem LLM, PROC-004): a Fase 1a segmenta e identif
   "pagina_inicio": 9, "pagina_fim": 14,
 
   "medidas":   [ { "ref":"M1", "tipo":"peso|temperatura|fc|fr|glicemia|ecc|bhb|cetonas_fita|pas|tpc|spo2",
-                   "valor": 13.2, "unidade": "kg | null", "data_medida": "2025-07-05T16:47",
+                   "valor": 13.2,            // número ou null (medida qualitativa: null + valor_texto)
+                   "valor_texto": null,      // literal da medida qualitativa, ex.: "++"; null nas numéricas
+                   "unidade": "kg | null", "data_medida": "2025-07-05T16:47",
                    "confianca": 0.95, "pagina": 14, "trecho": "Peso: 13,200 kg" } ],
   "achados":   [ { "ref":"A1", "origem":"queixa | exame_fisico", "sistema":"respiratorio|…",
                    "achado_tipo":"mucosas|linfonodos|hidratacao|tpc|generico",   // controlado; 'generico' p/ o resto
@@ -113,6 +115,7 @@ Extração **determinística** (sem LLM, PROC-004): a Fase 1a segmenta e identif
 - **Todo item clínico** (medida, achado, exame, diagnóstico, prescrição, desfecho, procedimento) tem `pagina` e `trecho` (analitos herdam do exame).
 - **`trecho` é substring do BLOCO DESIDENTIFICADO** (o texto já sem PII), não do PDF. Em fragmento, do fragmento.
 - **Exame sem resultado em texto**: `trecho` = título do exame (`HEMOGRAMA COMPLETO`), nunca o cabeçalho da tabela. `trecho: null` não é aceito.
+- **`medida.valor` aceita número ou null.** Medida qualitativa (cetonas de fita "++", TPC "normal") tem `valor` = null e o literal em `valor_texto`; o `trecho` sempre traz a linha literal.
 - **`unidade = null`** quando o texto não traz unidade (ECC, BHB, cetonas, TPC qualitativo). Se o texto traz a escala ("5/9"), a unidade é a escala literal.
 - **Achado de exame físico** (`origem: exame_fisico`): `achado_tipo` usa o vocabulário controlado (`mucosas`, `linfonodos`, `hidratacao`, `tpc`) quando couber; o resto é `generico`. Mucosas e linfonodos são de **varredura obrigatória** (ver a especificação do extrator).
 - **Desfecho**: só quando escrito. Ausência de retorno não é desfecho. `referido` = contado pelo tutor ou histórico.

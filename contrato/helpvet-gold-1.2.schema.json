@@ -237,7 +237,8 @@
             "spo2"
           ]
         },
-        "valor": { "type": "number" },
+        "valor": { "type": ["number", "null"] },
+        "valor_texto": { "type": ["string", "null"] },
         "unidade": { "type": ["string", "null"] },
         "data_medida": { "$ref": "#/$defs/datetime_or_null" },
         "confianca": { "$ref": "#/$defs/confianca" },
