@@ -1,0 +1,18 @@
+{
+  "_aviso": "SEMENTE A EXPANDIR com a lista do Rafa. Nenhum valor aqui e dado real. 'sv' e ambiguo: confirmar com o Rafa.",
+  "abreviacoes": {
+    "nc": "normocoradas",
+    "hipoc": "hipocoradas",
+    "ict": "ictéricas",
+    "abd": "abdome",
+    "tpc": "tempo de preenchimento capilar",
+    "fc": "frequência cardíaca",
+    "fr": "frequência respiratória",
+    "ecc": "escore de condição corporal",
+    "pas": "pressão arterial sistólica",
+    "mv": "murmúrio vesicular",
+    "bpm": "batimentos por minuto",
+    "lnn": "linfonodos",
+    "sv": "sem alterações"
+  }
+}

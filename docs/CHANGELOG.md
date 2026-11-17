@@ -1,5 +1,9 @@
 # Changelog
 
+## Especificação do extrator `r1b-0.1`
+
+Projeto do extrator determinístico (`docs/EXTRATOR_DETERMINISTICO.md`) e esqueleto de código com as interfaces (`pii`, `segmentacao`, `parsers_estruturais`, `anotador_lexico`, `quarentena`); léxicos semente sintéticos e testes das invariantes de desenho. `__version__` = 0.1.0. Implementação em PRs incrementais. KNOWN-003 registrado.
+
 ## Contrato `helpvet-gold-1.2` (2026-11-17)
 
 Mudanças 1.1 → 1.2:
