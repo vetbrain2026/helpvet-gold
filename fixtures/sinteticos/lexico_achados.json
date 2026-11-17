@@ -1,0 +1,11 @@
+{
+  "_aviso": "SEMENTE A EXPANDIR pelo Rafa. Lista pequena e inventada; nenhum valor aqui e dado real.",
+  "achados": {
+    "respiratorio": ["tosse", "dispneia", "espirro"],
+    "digestorio": ["vomito", "diarreia", "hiporexia"],
+    "urinario": ["poliuria", "disuria", "hematuria"],
+    "pele": ["prurido", "alopecia", "eritema"],
+    "locomotor": ["claudicacao", "dor a palpacao"],
+    "geral": ["apatia", "febre", "emagrecimento"]
+  }
+}

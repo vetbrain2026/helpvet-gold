@@ -1,5 +1,9 @@
 # KNOWN_ISSUES
 
+## KNOWN-003 — Quarentena alta no texto livre nuançado (por desenho)
+
+A extração determinística tem quarentena alta no texto livre nuançado por desenho (PROC-005); o léxico cresce com a revisão da quarentena; reavaliar LLM local só com outra máquina.
+
 ## KNOWN-002 — Verificador de PII barra sequências numéricas longas soltas
 
 O verificador de PII barra qualquer sequência solta de 10, 11 ou 14 dígitos (telefone/CPF/CNPJ sem pontuação). É proposital (falhar seguro): ao escrever fixtures sintéticas, evite números longos sem pontuação, inclusive carimbos de tempo Unix em segundos. Falso positivo se resolve reescrevendo o número, nunca afrouxando o verificador.

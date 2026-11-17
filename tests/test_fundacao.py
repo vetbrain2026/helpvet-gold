@@ -20,7 +20,7 @@ LIMPO = "Paciente canino fictício, 12 kg, retorno em 3 dias."
 
 
 def test_versao_do_pacote() -> None:
-    assert helpvet_gold.__version__ == "0.0.0"
+    assert helpvet_gold.__version__ == "0.1.0"
 
 
 def test_texto_limpo_passa() -> None:
