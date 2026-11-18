@@ -51,7 +51,7 @@ Abreviação **fora** do léxico num ponto clínico → quarentena, nunca um pal
 ## PII (determinístico, idempotente) — camadas em ordem fixa
 1. Linha de autoria `Por <NOME> em <data>` → `Por [PROFISSIONAL] em <data>`.
 2. Canários do cabeçalho do PDF (tutor, nome do animal, profissionais) → `[TUTOR]`, `[ANIMAL]`, `[PROFISSIONAL]` (sem acento/caixa; palavra inteira; < 3 letras ignoradas).
-3. Regex estruturais: CPF (com e sem pontuação), telefone BR, e-mail, CEP, CRMV.
+3. Regex estruturais: CPF (com e sem pontuação), telefone BR, e-mail, CNPJ, CEP, CRMV. **Ativos (r1b-0.2): CPF, e-mail, CNPJ e telefone** (ordem: e-mail → CNPJ → CPF → telefone; marcadores `[EMAIL]`, `[CNPJ]`, `[CPF]`, `[TELEFONE]`). O telefone só pega sinais fortes (+55, DDD, celular com 9, 10 dígitos corridos), nunca `XXXX-XXXX` solto. Pendentes: CEP e CRMV. **Nomes na narrativa (camadas 4–6) seguem pendentes** — precondição do portão.
 4. Prefixo clínico (`Dr.`, `Dra.`, `MV`…) + nome → `[PROFISSIONAL]`.
 5. Palavra de relação (`tutor(a)`, `responsável`, `mãe`…) + nome → relação **mantida** + `[PESSOA_RELACIONADA]`.
 6. Nome **isolado** sem âncora: **não** é substituído por regex (destruiria texto clínico). Vai para revisão amostral.
