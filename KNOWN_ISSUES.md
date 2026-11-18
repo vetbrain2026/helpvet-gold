@@ -10,6 +10,17 @@ Resíduos deferidos à camada de nomes na narrativa e à 2ª leitura do revisor 
 - (b) nome com **mais tokens que o teto** (4+), além dos 3 capturados após o título;
 - (c) **verbo ou achado clínico capitalizado fora da lista** de parada, no caso sem pontuação.
 
+## KNOWN-005 — Fronteira de nome da palavra de relação é heurística
+
+Mesma fronteira heurística do prefixo clínico (KNOWN-004), agora na camada de palavra de relação (`tutora`, `responsável`, `mãe` + nome → `[PESSOA_RELACIONADA]`). A defesa do rótulo é **estrutural** por pontuação (`:` ou `,` colado ao token depois da relação), válida para **qualquer rótulo**, independente de lista. A lista de parada (`_STOP_RELACAO`) é só **reforço incompleto** para o caso sem pontuação: corta o nome no 1º verbo/particípio capitalizado (ex.: "Orientada").
+
+Resíduos deferidos à camada de nomes na narrativa e à 2ª leitura oficial do PC antes do portão:
+
+- (a) nome **adjacente** à pontuação (a pontuação vem depois do próprio nome, não de um rótulo);
+- (b) nome com **4+ tokens**, além dos 3 capturados após a relação;
+- (c) **particípio ou verbo capitalizado fora da lista** de parada, no caso sem pontuação;
+- (d) formato de campo `Tutora: <nome>` (dois-pontos colado à **própria palavra de relação**) **não** é tratado aqui — fica para a camada de **canários do cabeçalho**.
+
 ## KNOWN-003 — Quarentena alta no texto livre nuançado (por desenho)
 
 A extração determinística tem quarentena alta no texto livre nuançado por desenho (PROC-005); o léxico cresce com a revisão da quarentena; reavaliar LLM local só com outra máquina.
