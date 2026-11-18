@@ -29,6 +29,7 @@ _AUTORIA = re.compile(
 _PREFIXO = re.compile(
     r"((?:Dra?\.?|M[ée]d\.?\s*Vet\.?|M[ée]dico\s+Veterin[áa]rio)\s+)"
     r"([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*){0,2})"
+    r"([:,])?"
 )
 
 # Finita e incompleta — expandir conforme a 2a leitura do revisor (KNOWN-004).
@@ -59,17 +60,12 @@ _STOP_PREFIXO: frozenset[str] = frozenset(
         "medicou",
         "retornou",
         "compareceu",
-        "responsável",
-        "responsavel",
-        "solicitante",
-        "executante",
         "tórax",
         "torax",
         "abdome",
         "abdômen",
         "abdomen",
         "mucosas",
-        "paciente",
     }
 )
 
@@ -110,30 +106,35 @@ def _cortar_nome_prefixo(tokens: list[str]) -> list[str]:
     return tokens
 
 
-def _scrub_prefixo(texto: str) -> str:
-    def _sub(m: re.Match[str]) -> str:
-        titulo = m.group(1)
-        tokens = m.group(2).split()
-        nome = _cortar_nome_prefixo(tokens)
-        if not nome:
-            return m.group(0)
-        resto = tokens[len(nome) :]
-        saida = titulo + "[PROFISSIONAL]"
-        if resto:
-            saida += " " + " ".join(resto)
-        return saida
+def _prefixo_resultado(m: re.Match[str]) -> tuple[str, bool]:
+    """Decide o resultado do prefixo: (texto, redigiu?). Estrutura primeiro.
 
-    return _PREFIXO.sub(_sub, texto)
+    A defesa primaria e ESTRUTURAL: um token colado a ":" ou "," e rotulo (ex.:
+    ``Responsavel:``, ``Assinado:``), nao nome — qualquer rotulo, independente de lista.
+    A lista de parada e so REFORCO para verbo/achado clinico capitalizado sem pontuacao.
+    """
+    titulo, nome_bruto, punct = m.group(1), m.group(2), m.group(3)
+    # ESTRUTURAL (primario): token colado a ":" ou "," e rotulo/lista -> NAO redige.
+    if punct:
+        return m.group(0), False
+    # REFORCO lexical: corta o nome na 1a palavra da lista de parada (verbo capitalizado).
+    tokens = nome_bruto.split()
+    nome = _cortar_nome_prefixo(tokens)
+    if not nome:
+        return m.group(0), False
+    resto = tokens[len(nome) :]
+    saida = titulo + "[PROFISSIONAL]"
+    if resto:
+        saida += " " + " ".join(resto)
+    return saida, True
+
+
+def _scrub_prefixo(texto: str) -> str:
+    return _PREFIXO.sub(lambda m: _prefixo_resultado(m)[0], texto)
 
 
 def _varrer_prefixo(texto: str) -> list[tuple[str, int]]:
-    achados: list[tuple[str, int]] = []
-    for m in _PREFIXO.finditer(texto):
-        tokens = m.group(2).split()
-        nome = _cortar_nome_prefixo(tokens)
-        if nome:
-            achados.append(("prefixo", m.start()))
-    return achados
+    return [("prefixo", m.start()) for m in _PREFIXO.finditer(texto) if _prefixo_resultado(m)[1]]
 
 
 def scrub(texto: str, canarios: frozenset[str]) -> str:
@@ -156,11 +157,11 @@ def _varrer_texto(texto: str) -> list[tuple[str, int]]:
         achados.append(("autoria", m.start()))
     texto = _AUTORIA.sub(lambda m: "#" * len(m.group()), texto)
     for m in _PREFIXO.finditer(texto):
-        tokens = m.group(2).split()
-        nome = _cortar_nome_prefixo(tokens)
-        if nome:
+        if _prefixo_resultado(m)[1]:
             achados.append(("prefixo", m.start()))
-    texto = _PREFIXO.sub(lambda m: "#" * len(m.group()), texto)
+    texto = _PREFIXO.sub(
+        lambda m: "#" * len(m.group()) if _prefixo_resultado(m)[1] else m.group(0), texto
+    )
     for classe, _marcador, padroes in _CAMADAS:
         for padrao in padroes:
             # Casamentos ja consumidos viram "#" (mesmo tamanho): as posicoes se mantem e a

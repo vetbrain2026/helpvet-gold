@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.5: prefixo com parada estrutural por pontuação (rótulo não vaza nome, independente de lista)
+
+`src/helpvet_gold/pii.py` ganha a defesa **estrutural** do rótulo no prefixo clínico: `_PREFIXO` captura a pontuação colada (`:` ou `,`) e o helper único `_prefixo_resultado` decide pela estrutura primeiro — token colado a `:`/`,` é rótulo (ex.: `Assinado:`, `Visto:`, `Emitente:`), não nome, e o trecho fica inalterado, **para qualquer rótulo, independente de lista**. A `_STOP_PREFIXO` fica só como reforço do caso sem pontuação (verbo/achado clínico capitalizado) e os rótulos saem dela. `scrub`, `varredura` e `_varrer_texto` passam pelo mesmo helper. KNOWN-004 reescrito. Testes estruturais em `tests/test_pii_prefixo.py`.
+
 ## scrub r1b-0.5: prefixo com lista de parada e teto (corrige engolir verbo/vazar nome após rótulo)
 
 `src/helpvet_gold/pii.py` passa a redigir prefixos clínicos (`Dr.`, `Dra.`, `Méd. Vet.`, `Médico Veterinário`) + nome → título mantido + `[PROFISSIONAL]`. `MV` **não** é âncora: colide com murmúrio vesicular (`MV Diminuído`). Nome limitado a 3 tokens capitalizados e cortado por lista de parada (verbos e rótulos clínicos); se o primeiro token é da lista, não redige (evita engolir verbo e vazar nome após rótulo). `varredura` ganha a classe `prefixo`. Limite heurístico registrado no KNOWN-004. Testes em `tests/test_pii_prefixo.py`. Palavra de relação, canários e nomes na narrativa seguem pendentes.

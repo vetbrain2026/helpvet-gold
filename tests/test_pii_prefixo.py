@@ -97,6 +97,36 @@ class TestPrefixoNegativos:
         assert varredura(texto) == []
 
 
+# --- Estrutural: a pontuacao cobre QUALQUER rotulo, mesmo fora da _STOP_PREFIXO ---
+
+
+class TestPrefixoEstruturalPontuacao:
+    def test_assinado_dois_pontos(self) -> None:
+        texto = "Méd. Vet. Assinado: " + "Maria" + " Silva"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_emitente_dois_pontos(self) -> None:
+        texto = "Dr. Emitente: " + "João" + " Souza"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_solicitante_dois_pontos(self) -> None:
+        texto = "Dr. Solicitante: " + "Fulano" + " Dias"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_visto_dois_pontos(self) -> None:
+        texto = "Méd. Vet. Visto: " + "João"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_conferido_virgula(self) -> None:
+        texto = "Dr. Conferido, " + "Ana" + " Paula"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+
 # --- Positivos com lista de parada (nome redigido, verbo preservado) ---
 
 
