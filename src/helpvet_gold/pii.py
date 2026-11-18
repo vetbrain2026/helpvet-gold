@@ -1,14 +1,17 @@
 """Scrub e varredura de PII (deterministicos).
 
-ESQUELETO r1b-0.4: ativas as camadas estruturais CPF, e-mail, CNPJ, telefone, CEP, CRMV
-e autoria (linha ``Por <nome> em <data>``).
-Pendentes: canarios, prefixo clinico, palavra de relacao e nomes na narrativa
+ESQUELETO r1b-0.5: ativas as camadas estruturais CPF, e-mail, CNPJ, telefone, CEP, CRMV,
+autoria (linha ``Por <nome> em <data>``) e prefixo clinico (``Dr.``, ``Dra.``,
+``Med. Vet.``).
+Pendentes: canarios, palavra de relacao e nomes na narrativa
 (precondicao do portao): ver docs/EXTRATOR_DETERMINISTICO.md.
 
 O CEP so casa o formato com hifen (5 digitos, hifen, 3), nunca 8 digitos corridos. O CRMV e
 ancorado na palavra CRMV, caso-insensivel (privacidade primeiro), com UF e numero opcionais.
 A autoria so casa quando ha os tres sinais juntos: ``Por`` com P maiusculo, nome(s)
 capitalizado(s) logo depois e a ancora ``em <data>`` (dd/mm/aaaa) em seguida.
+O prefixo clinico mantem o titulo (Dr., Dra., Med. Vet.) e redige so o nome. ``MV`` NAO e
+ancora: colide com murmúrio vesicular.
 
 Principio: o scrub roda sobre texto clinico, entao exagerar destrói dado. As camadas pegam
 so PII com sinal estrutural claro; o telefone nunca casa quatro digitos, hifen e quatro
@@ -21,6 +24,11 @@ import re
 
 _AUTORIA = re.compile(
     r"(\bPor\s+)([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*)*)(\s+em\s+\d{1,2}/\d{1,2}/\d{2,4})"
+)
+
+_PREFIXO = re.compile(
+    r"((?:Dra?\.?|M[ée]d\.?\s*Vet\.?|M[ée]dico\s+Veterin[áa]rio)\s+)"
+    r"([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*)*)"
 )
 
 _CRMV = re.compile(r"CRMV[\s/-]?[A-Z]{0,2}[\s:.\-]*(?:n[ºo.]?\s?)?[0-9]{2,7}", re.IGNORECASE)
@@ -53,12 +61,22 @@ def _varrer_autoria(texto: str) -> list[tuple[str, int]]:
     return [("autoria", m.start()) for m in _AUTORIA.finditer(texto)]
 
 
+def _scrub_prefixo(texto: str) -> str:
+    return _PREFIXO.sub(r"\1[PROFISSIONAL]", texto)
+
+
+def _varrer_prefixo(texto: str) -> list[tuple[str, int]]:
+    return [("prefixo", m.start()) for m in _PREFIXO.finditer(texto)]
+
+
 def scrub(texto: str, canarios: frozenset[str]) -> str:
     """Remove PII do texto. Idempotente: scrub(scrub(x)) == scrub(x).
 
-    Parcial: camadas estruturais e autoria. `canarios` ainda nao e usado (camada 2 pendente).
+    Parcial: camadas estruturais, autoria e prefixo clinico.
+    `canarios` ainda nao e usado (camada 2 pendente).
     """
     texto = _scrub_autoria(texto)
+    texto = _scrub_prefixo(texto)
     for _classe, marcador, padroes in _CAMADAS:
         for padrao in padroes:
             texto = padrao.sub(marcador, texto)
@@ -70,6 +88,9 @@ def _varrer_texto(texto: str) -> list[tuple[str, int]]:
     for m in _AUTORIA.finditer(texto):
         achados.append(("autoria", m.start()))
     texto = _AUTORIA.sub(lambda m: "#" * len(m.group()), texto)
+    for m in _PREFIXO.finditer(texto):
+        achados.append(("prefixo", m.start()))
+    texto = _PREFIXO.sub(lambda m: "#" * len(m.group()), texto)
     for classe, _marcador, padroes in _CAMADAS:
         for padrao in padroes:
             # Casamentos ja consumidos viram "#" (mesmo tamanho): as posicoes se mantem e a
@@ -84,7 +105,7 @@ def varredura(obj: object) -> list[tuple[str, int]]:
     """Varre um objeto JSON-like e devolve (classe, posicao) de cada PII achada.
 
     Nunca devolve o valor. A posicao e o indice dentro da string em que a PII aparece.
-    Classes: "autoria", "crmv", "email", "cnpj", "cpf", "cep", "telefone".
+    Classes: "autoria", "prefixo", "crmv", "email", "cnpj", "cpf", "cep", "telefone".
     """
     achados: list[tuple[str, int]] = []
     if isinstance(obj, str):

@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.5: camada de prefixo clínico (MV fora, colisão com murmúrio vesicular)
+
+`src/helpvet_gold/pii.py` passa a redigir prefixos clínicos (`Dr.`, `Dra.`, `Méd. Vet.`, `Médico Veterinário`) + nome → título mantido + `[PROFISSIONAL]`. `MV` **não** é âncora: colide com murmúrio vesicular (`MV Diminuído`). `varredura` ganha a classe `prefixo`. Testes em `tests/test_pii_prefixo.py`. Palavra de relação, canários e nomes na narrativa seguem pendentes.
+
 ## scrub r1b-0.4: camada de autoria
 
 `src/helpvet_gold/pii.py` passa a redigir a linha de autoria `Por <nome> em <data>` → `Por [PROFISSIONAL] em <data>`. Só casa com os três sinais: `Por` maiúsculo, nome(s) capitalizado(s) e âncora `em dd/mm/aaaa`. Negativos clínicos (por via oral, por 3 dias, Por favor, consulta em data, por volta de) sobrevivem. `varredura` ganha a classe `autoria`. Testes em `tests/test_pii_autoria.py`. Nomes na narrativa seguem pendentes.
