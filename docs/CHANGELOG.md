@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.6: corrige condição de pontuação (rótulo = 1 token; nome multi-token antes de pontuação é redigido) no prefixo e na relação
+
+A 2ª leitura do revisor achou vazamento nas duas camadas âncora: a regra `if punct: não redige` suprimia a redação sempre que havia `:`/`,` no match, mas a pontuação pode vir **depois do nome** (ex.: `responsável Maria Assinou: documento` → vazava "Maria"). `_prefixo_resultado` e `_relacao_resultado` passam a suprimir só quando o rótulo é **um único token** colado à pontuação (`if punct and len(tokens) == 1`); com nome multi-token antes da pontuação, o nome é redigido (cortando o verbo pela lista) e a pontuação é **preservada** no fim. Rótulo de uma palavra (`Visto:`, `Responsável:`) segue inalterado. Testes de não-vazamento em `tests/test_pii_prefixo.py` e `tests/test_pii_relacao.py`; KNOWN-004 e KNOWN-005 ajustados.
+
 ## scrub r1b-0.6: camada de palavra de relação (mesma defesa estrutural do prefixo)
 
 `src/helpvet_gold/pii.py` ganha a camada de **palavra de relação**: `tutora Ana`, `responsável Carlos`, `mãe Joana` → relação **mantida** + `[PESSOA_RELACIONADA]`, redigindo só o nome. Espelha `_prefixo_resultado`: `_RELACAO` com a palavra de relação caso-insensível (flag escopado `(?i:...)`) e o nome só-maiúscula (classe explícita, sem `re.IGNORECASE` global); `_relacao_resultado` decide pela **estrutura primeiro** (token colado a `:`/`,` é rótulo → não redige, independente de lista) e usa a `_STOP_RELACAO` (verbos/particípios) só como reforço do caso sem pontuação; teto de 3 tokens. `scrub` chama `_scrub_relacao` após o prefixo; `varredura` ganha a classe `relacao`. Idempotência mantida. KNOWN-005 registrado. Testes em `tests/test_pii_relacao.py`. Canários e nomes na narrativa seguem pendentes.

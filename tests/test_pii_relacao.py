@@ -93,6 +93,31 @@ class TestRelacaoReforco:
         assert f"tutora {nome} " not in saida
 
 
+# --- Nome multi-token antes de pontuacao: redige e preserva a pontuacao ---
+
+
+class TestRelacaoMultiTokenPontuacao:
+    def test_nome_verbo_dois_pontos(self) -> None:
+        nome = "Maria"
+        entrada = f"responsável {nome} Assinou: documento"
+        saida = scrub(entrada, _CANARIOS)
+        assert saida == "responsável [PESSOA_RELACIONADA] Assinou: documento"
+        assert nome not in saida
+
+    def test_nome_verbo_virgula(self) -> None:
+        nome = "Ana"
+        entrada = f"tutora {nome} Compareceu, às 14h"
+        saida = scrub(entrada, _CANARIOS)
+        assert saida == "tutora [PESSOA_RELACIONADA] Compareceu, às 14h"
+        assert nome not in saida
+
+    def test_rotulo_um_token_colado_inalterado(self) -> None:
+        nome = "João"
+        texto = f"responsável Visto: {nome}"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+
 # --- Idempotencia ---
 
 

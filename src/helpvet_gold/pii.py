@@ -151,11 +151,12 @@ def _prefixo_resultado(m: re.Match[str]) -> tuple[str, bool]:
     A lista de parada e so REFORCO para verbo/achado clinico capitalizado sem pontuacao.
     """
     titulo, nome_bruto, punct = m.group(1), m.group(2), m.group(3)
-    # ESTRUTURAL (primario): token colado a ":" ou "," e rotulo/lista -> NAO redige.
-    if punct:
+    tokens = nome_bruto.split()
+    # ESTRUTURAL (primario): rotulo = UNICO token colado a pontuacao, logo apos a ancora
+    # (ex.: "Responsavel:", "Visto:"). Nome multi-token antes da pontuacao e nome real.
+    if punct and len(tokens) == 1:
         return m.group(0), False
     # REFORCO lexical: corta o nome na 1a palavra da lista de parada (verbo capitalizado).
-    tokens = nome_bruto.split()
     nome = _cortar_nome_prefixo(tokens)
     if not nome:
         return m.group(0), False
@@ -163,6 +164,8 @@ def _prefixo_resultado(m: re.Match[str]) -> tuple[str, bool]:
     saida = titulo + "[PROFISSIONAL]"
     if resto:
         saida += " " + " ".join(resto)
+    if punct:  # preserva ":"/"," que estava no fim do match
+        saida += punct
     return saida, True
 
 
@@ -188,11 +191,12 @@ def _relacao_resultado(m: re.Match[str]) -> tuple[str, bool]:
     primeiro: token colado a ":" ou "," e rotulo, nao nome — nao redige, independente de lista.
     """
     relacao, nome_bruto, punct = m.group(1), m.group(2), m.group(3)
-    # ESTRUTURAL (primario): pontuacao colada = rotulo -> NAO redige.
-    if punct:
+    tokens = nome_bruto.split()
+    # ESTRUTURAL (primario): rotulo = UNICO token colado a pontuacao, logo apos a relacao
+    # (ex.: "Visto:"). Nome multi-token antes da pontuacao e nome real.
+    if punct and len(tokens) == 1:
         return m.group(0), False
     # REFORCO lexical: corta o nome no 1o verbo/participio capitalizado da lista de parada.
-    tokens = nome_bruto.split()
     nome = _cortar_nome_relacao(tokens)
     if not nome:
         return m.group(0), False
@@ -201,6 +205,8 @@ def _relacao_resultado(m: re.Match[str]) -> tuple[str, bool]:
     saida = relacao + " [PESSOA_RELACIONADA]"
     if resto:
         saida += " " + " ".join(resto)
+    if punct:  # preserva ":"/"," que estava no fim do match
+        saida += punct
     return saida, True
 
 
