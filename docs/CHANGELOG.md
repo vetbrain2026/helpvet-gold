@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.4: camada de autoria
+
+`src/helpvet_gold/pii.py` passa a redigir a linha de autoria `Por <nome> em <data>` → `Por [PROFISSIONAL] em <data>`. Só casa com os três sinais: `Por` maiúsculo, nome(s) capitalizado(s) e âncora `em dd/mm/aaaa`. Negativos clínicos (por via oral, por 3 dias, Por favor, consulta em data, por volta de) sobrevivem. `varredura` ganha a classe `autoria`. Testes em `tests/test_pii_autoria.py`. Nomes na narrativa seguem pendentes.
+
 ## scrub r1b-0.3: camadas CEP e CRMV
 
 `src/helpvet_gold/pii.py` passa a redigir CEP (`[CEP]`, só o formato com hífen, nunca 8 dígitos corridos) e CRMV (`[CRMV]`, ancorado na palavra CRMV, caso-insensível). Nova ordem: CRMV → e-mail → CNPJ → CPF → CEP → telefone. `varredura` ganha as classes `cep` e `crmv`. Testes em `tests/test_pii_cep_crmv.py`. Nomes na narrativa seguem pendentes.
