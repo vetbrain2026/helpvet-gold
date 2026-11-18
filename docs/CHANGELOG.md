@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.2: camadas estruturais e-mail, CNPJ, telefone
+
+`src/helpvet_gold/pii.py` passa a redigir e-mail (`[EMAIL]`), CNPJ (`[CNPJ]`) e telefone (`[TELEFONE]`, só sinais fortes), além do CPF; `varredura` ganha as classes `email`, `cnpj` e `telefone` (sem devolver o valor). Testes positivos, negativos clínicos (pesos, doses, datas e faixas não são redigidos), idempotência e varredura em `tests/test_pii_estrutural.py`. Nomes na narrativa seguem pendentes.
+
 ## Especificação do extrator `r1b-0.1`
 
 Projeto do extrator determinístico (`docs/EXTRATOR_DETERMINISTICO.md`) e esqueleto de código com as interfaces (`pii`, `segmentacao`, `parsers_estruturais`, `anotador_lexico`, `quarentena`); léxicos semente sintéticos e testes das invariantes de desenho. `__version__` = 0.1.0. Implementação em PRs incrementais. KNOWN-003 registrado.
