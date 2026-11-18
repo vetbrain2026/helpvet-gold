@@ -1,5 +1,9 @@
 # Changelog
 
+## scrub r1b-0.3: camadas CEP e CRMV
+
+`src/helpvet_gold/pii.py` passa a redigir CEP (`[CEP]`, só o formato com hífen, nunca 8 dígitos corridos) e CRMV (`[CRMV]`, ancorado na palavra CRMV, caso-insensível). Nova ordem: CRMV → e-mail → CNPJ → CPF → CEP → telefone. `varredura` ganha as classes `cep` e `crmv`. Testes em `tests/test_pii_cep_crmv.py`. Nomes na narrativa seguem pendentes.
+
 ## scrub r1b-0.2: camadas estruturais e-mail, CNPJ, telefone
 
 `src/helpvet_gold/pii.py` passa a redigir e-mail (`[EMAIL]`), CNPJ (`[CNPJ]`) e telefone (`[TELEFONE]`, só sinais fortes), além do CPF; `varredura` ganha as classes `email`, `cnpj` e `telefone` (sem devolver o valor). Testes positivos, negativos clínicos (pesos, doses, datas e faixas não são redigidos), idempotência e varredura em `tests/test_pii_estrutural.py`. Nomes na narrativa seguem pendentes.
