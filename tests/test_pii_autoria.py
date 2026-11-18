@@ -85,6 +85,16 @@ class TestAutoríaNegativos:
         assert scrub(texto, _CANARIOS) == texto
         assert varredura(texto) == []
 
+    def test_por_epoca(self) -> None:
+        texto = "Por época em 16/01/2024"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_por_area(self) -> None:
+        texto = "Por área em 16/01/2024"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
 
 # --- Idempotencia ---
 

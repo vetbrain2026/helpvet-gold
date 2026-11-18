@@ -20,7 +20,7 @@ from __future__ import annotations
 import re
 
 _AUTORIA = re.compile(
-    r"(\bPor\s+)([A-ZÀ-Ÿ][\w.]*(?:\s+[A-ZÀ-Ÿ][\w.]*)*)(\s+em\s+\d{1,2}/\d{1,2}/\d{2,4})"
+    r"(\bPor\s+)([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*)*)(\s+em\s+\d{1,2}/\d{1,2}/\d{2,4})"
 )
 
 _CRMV = re.compile(r"CRMV[\s/-]?[A-Z]{0,2}[\s:.\-]*(?:n[ºo.]?\s?)?[0-9]{2,7}", re.IGNORECASE)
