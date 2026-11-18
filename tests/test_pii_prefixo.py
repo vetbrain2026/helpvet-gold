@@ -85,6 +85,36 @@ class TestPrefixoNegativos:
         assert scrub(texto, _CANARIOS) == texto
         assert varredura(texto) == []
 
+    def test_rotulo_responsavel_nao_redige(self) -> None:
+        nome = "Carlos" + " Dias"
+        texto = f"Méd. Vet. Responsável: {nome}"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+    def test_torax_nao_redige(self) -> None:
+        texto = "Dr. Tórax limpo à ausculta"
+        assert scrub(texto, _CANARIOS) == texto
+        assert varredura(texto) == []
+
+
+# --- Positivos com lista de parada (nome redigido, verbo preservado) ---
+
+
+class TestPrefixoParada:
+    def test_dra_nome_avaliou(self) -> None:
+        nome = "Souza"
+        entrada = f"Dra. {nome} Avaliou o paciente"
+        saida = scrub(entrada, _CANARIOS)
+        assert saida == "Dra. [PROFISSIONAL] Avaliou o paciente"
+        assert nome not in saida
+
+    def test_dr_nome_solicitou(self) -> None:
+        nome = "Lima"
+        entrada = f"Dr. {nome} Solicitou hemograma"
+        saida = scrub(entrada, _CANARIOS)
+        assert saida == "Dr. [PROFISSIONAL] Solicitou hemograma"
+        assert nome not in saida
+
 
 # --- Idempotencia ---
 

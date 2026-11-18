@@ -28,7 +28,49 @@ _AUTORIA = re.compile(
 
 _PREFIXO = re.compile(
     r"((?:Dra?\.?|M[ée]d\.?\s*Vet\.?|M[ée]dico\s+Veterin[áa]rio)\s+)"
-    r"([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*)*)"
+    r"([A-ZÀ-ÖØ-Þ][\w.]*(?:\s+[A-ZÀ-ÖØ-Þ][\w.]*){0,2})"
+)
+
+# Finita e incompleta — expandir conforme a 2a leitura do revisor (KNOWN-004).
+_STOP_PREFIXO: frozenset[str] = frozenset(
+    {
+        "avaliou",
+        "solicitou",
+        "prescreveu",
+        "realizou",
+        "observou",
+        "examinou",
+        "atendeu",
+        "relatou",
+        "encaminhou",
+        "evoluiu",
+        "apresentou",
+        "orientou",
+        "recomendou",
+        "indicou",
+        "administrou",
+        "aplicou",
+        "internou",
+        "suturou",
+        "drenou",
+        "puncionou",
+        "auscultou",
+        "palpou",
+        "medicou",
+        "retornou",
+        "compareceu",
+        "responsável",
+        "responsavel",
+        "solicitante",
+        "executante",
+        "tórax",
+        "torax",
+        "abdome",
+        "abdômen",
+        "abdomen",
+        "mucosas",
+        "paciente",
+    }
 )
 
 _CRMV = re.compile(r"CRMV[\s/-]?[A-Z]{0,2}[\s:.\-]*(?:n[ºo.]?\s?)?[0-9]{2,7}", re.IGNORECASE)
@@ -61,12 +103,37 @@ def _varrer_autoria(texto: str) -> list[tuple[str, int]]:
     return [("autoria", m.start()) for m in _AUTORIA.finditer(texto)]
 
 
+def _cortar_nome_prefixo(tokens: list[str]) -> list[str]:
+    for i, tok in enumerate(tokens):
+        if tok.lower().strip(".") in _STOP_PREFIXO:
+            return tokens[:i]
+    return tokens
+
+
 def _scrub_prefixo(texto: str) -> str:
-    return _PREFIXO.sub(r"\1[PROFISSIONAL]", texto)
+    def _sub(m: re.Match[str]) -> str:
+        titulo = m.group(1)
+        tokens = m.group(2).split()
+        nome = _cortar_nome_prefixo(tokens)
+        if not nome:
+            return m.group(0)
+        resto = tokens[len(nome) :]
+        saida = titulo + "[PROFISSIONAL]"
+        if resto:
+            saida += " " + " ".join(resto)
+        return saida
+
+    return _PREFIXO.sub(_sub, texto)
 
 
 def _varrer_prefixo(texto: str) -> list[tuple[str, int]]:
-    return [("prefixo", m.start()) for m in _PREFIXO.finditer(texto)]
+    achados: list[tuple[str, int]] = []
+    for m in _PREFIXO.finditer(texto):
+        tokens = m.group(2).split()
+        nome = _cortar_nome_prefixo(tokens)
+        if nome:
+            achados.append(("prefixo", m.start()))
+    return achados
 
 
 def scrub(texto: str, canarios: frozenset[str]) -> str:
@@ -89,7 +156,10 @@ def _varrer_texto(texto: str) -> list[tuple[str, int]]:
         achados.append(("autoria", m.start()))
     texto = _AUTORIA.sub(lambda m: "#" * len(m.group()), texto)
     for m in _PREFIXO.finditer(texto):
-        achados.append(("prefixo", m.start()))
+        tokens = m.group(2).split()
+        nome = _cortar_nome_prefixo(tokens)
+        if nome:
+            achados.append(("prefixo", m.start()))
     texto = _PREFIXO.sub(lambda m: "#" * len(m.group()), texto)
     for classe, _marcador, padroes in _CAMADAS:
         for padrao in padroes:

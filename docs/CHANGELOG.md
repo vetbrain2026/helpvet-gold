@@ -1,8 +1,8 @@
 # Changelog
 
-## scrub r1b-0.5: camada de prefixo clínico (MV fora, colisão com murmúrio vesicular)
+## scrub r1b-0.5: prefixo com lista de parada e teto (corrige engolir verbo/vazar nome após rótulo)
 
-`src/helpvet_gold/pii.py` passa a redigir prefixos clínicos (`Dr.`, `Dra.`, `Méd. Vet.`, `Médico Veterinário`) + nome → título mantido + `[PROFISSIONAL]`. `MV` **não** é âncora: colide com murmúrio vesicular (`MV Diminuído`). `varredura` ganha a classe `prefixo`. Testes em `tests/test_pii_prefixo.py`. Palavra de relação, canários e nomes na narrativa seguem pendentes.
+`src/helpvet_gold/pii.py` passa a redigir prefixos clínicos (`Dr.`, `Dra.`, `Méd. Vet.`, `Médico Veterinário`) + nome → título mantido + `[PROFISSIONAL]`. `MV` **não** é âncora: colide com murmúrio vesicular (`MV Diminuído`). Nome limitado a 3 tokens capitalizados e cortado por lista de parada (verbos e rótulos clínicos); se o primeiro token é da lista, não redige (evita engolir verbo e vazar nome após rótulo). `varredura` ganha a classe `prefixo`. Limite heurístico registrado no KNOWN-004. Testes em `tests/test_pii_prefixo.py`. Palavra de relação, canários e nomes na narrativa seguem pendentes.
 
 ## scrub r1b-0.4: camada de autoria
 
