@@ -1,8 +1,11 @@
 """Scrub e varredura de PII (deterministicos).
 
-ESQUELETO r1b-0.2: ativas as camadas estruturais CPF, e-mail, CNPJ e telefone. Pendentes:
-autoria, canarios, prefixo clinico, palavra de relacao, CEP, CRMV e nomes na narrativa
+ESQUELETO r1b-0.3: ativas as camadas estruturais CPF, e-mail, CNPJ, telefone, CEP e CRMV.
+Pendentes: autoria, canarios, prefixo clinico, palavra de relacao e nomes na narrativa
 (precondicao do portao): ver docs/EXTRATOR_DETERMINISTICO.md.
+
+O CEP so casa o formato com hifen (5 digitos, hifen, 3), nunca 8 digitos corridos. O CRMV e
+ancorado na palavra CRMV, caso-insensivel (privacidade primeiro), com UF e numero opcionais.
 
 Principio: o scrub roda sobre texto clinico, entao exagerar destrói dado. As camadas pegam
 so PII com sinal estrutural claro; o telefone nunca casa quatro digitos, hifen e quatro
@@ -13,6 +16,8 @@ from __future__ import annotations
 
 import re
 
+_CRMV = re.compile(r"CRMV[\s/-]?[A-Z]{0,2}[\s:.\-]*(?:n[ºo.]?\s?)?[0-9]{2,7}", re.IGNORECASE)
+_CEP = re.compile(r"(?<![0-9])[0-9]{5}-[0-9]{3}(?![0-9])")
 _EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+")
 _CNPJ = re.compile(r"(?<![0-9])[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}/?[0-9]{4}-?[0-9]{2}(?![0-9])")
 _CPF = re.compile(r"(?<![0-9])[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}(?![0-9])")
@@ -22,11 +27,13 @@ _TELEFONES = (
     re.compile(r"(?<![0-9])[0-9]{10}(?![0-9])"),
 )
 
-# (classe, marcador, padroes) na ordem de aplicacao: e-mail, CNPJ, CPF, telefone.
+# (classe, marcador, padroes) na ordem de aplicacao: CRMV, e-mail, CNPJ, CPF, CEP, telefone.
 _CAMADAS: tuple[tuple[str, str, tuple[re.Pattern[str], ...]], ...] = (
+    ("crmv", "[CRMV]", (_CRMV,)),
     ("email", "[EMAIL]", (_EMAIL,)),
     ("cnpj", "[CNPJ]", (_CNPJ,)),
     ("cpf", "[CPF]", (_CPF,)),
+    ("cep", "[CEP]", (_CEP,)),
     ("telefone", "[TELEFONE]", _TELEFONES),
 )
 
@@ -58,7 +65,7 @@ def varredura(obj: object) -> list[tuple[str, int]]:
     """Varre um objeto JSON-like e devolve (classe, posicao) de cada PII achada.
 
     Nunca devolve o valor. A posicao e o indice dentro da string em que a PII aparece.
-    Classes: "email", "cnpj", "cpf", "telefone".
+    Classes: "crmv", "email", "cnpj", "cpf", "cep", "telefone".
     """
     achados: list[tuple[str, int]] = []
     if isinstance(obj, str):
