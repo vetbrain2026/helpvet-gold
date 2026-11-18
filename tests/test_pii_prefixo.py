@@ -146,6 +146,18 @@ class TestPrefixoParada:
         assert nome not in saida
 
 
+# --- Nome multi-token antes de pontuacao: redige e preserva a pontuacao ---
+
+
+class TestPrefixoMultiTokenPontuacao:
+    def test_nome_verbo_dois_pontos(self) -> None:
+        nome = "Marcos"
+        entrada = f"Dr. {nome} Solicitou: documento"
+        saida = scrub(entrada, _CANARIOS)
+        assert saida == "Dr. [PROFISSIONAL] Solicitou: documento"
+        assert nome not in saida
+
+
 # --- Idempotencia ---
 
 
